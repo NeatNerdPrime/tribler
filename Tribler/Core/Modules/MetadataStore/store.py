@@ -23,7 +23,7 @@ CLOCK_STATE_FILE = "clock.state"
 
 sql_create_fts_table = """
     CREATE VIRTUAL TABLE IF NOT EXISTS FtsIndex USING FTS5
-        (title, tags, content='ChannelNode',
+        (title, tags, content='ChannelNode', prefix = '2 3 4 5',
          tokenize='porter unicode61 remove_diacritics 1');"""
 
 sql_add_fts_trigger_insert = """

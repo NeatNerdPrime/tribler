@@ -61,17 +61,15 @@ def define_binding(db):
             # BM25 ranking is embedded in FTS5.
 
             # Sanitize FTS query
-            if not query:
+            if not query or query == "*":
                 return []
             # FIXME: !!!! DO PROPER SQL SANITIZING !!!!
-            query = query.translate({ord(u'"'): u"'", ord(u'('): u" ", ord(u')'): u" "})
-            if query.endswith("*"):
-                query = "\"" + query[:-1] + "\"" + "*"
-            else:
-                query = "\"" + query + "\""
+            query = unicode(query)
+            query = query.translate({ord(u'"'): u"\"\"", ord(u"'"): u"\'\'"})
+            query = "("+query+")"
 
             fts_ids = raw_sql(
-                "SELECT rowid FROM FtsIndex WHERE FtsIndex MATCH $query ORDER BY bm25(FtsIndex) LIMIT %d" % lim)
+                'SELECT rowid FROM FtsIndex WHERE FtsIndex MATCH $query ORDER BY bm25(FtsIndex) LIMIT $lim')
             return cls.select(lambda g: g.rowid in fts_ids)
 
         @classmethod
@@ -79,8 +77,6 @@ def define_binding(db):
             if not keyword:
                 return []
 
-            # FIXME: !!!! DO PROPER SQL SANITIZING !!!!
-            keyword = keyword.translate({ord(u'"'): u"'", ord(u'('): u" ", ord(u')'): u" "})
             with db_session:
                 result = cls.search_keyword(keyword + "*", lim=limit)[:]
             titles = [g.title.lower() for g in result]

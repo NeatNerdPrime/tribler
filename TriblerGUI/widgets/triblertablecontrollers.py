@@ -281,6 +281,7 @@ class MyTorrentsTableViewController(TorrentsTableViewController):
 
         self.request_mgr = TriblerRequestManager()
         self.request_mgr.perform_request(
+            "mychannel/torrents",
             self.on_torrents,
             url_params={
                 "sort_by": sort_by,
